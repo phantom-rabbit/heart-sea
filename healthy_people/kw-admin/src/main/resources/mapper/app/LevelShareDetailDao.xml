@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kw.modules.app.dao.LevelShareDetailDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.kw.modules.app.entity.LevelShareDetailEntity" id="levelShareDetailMap">
+        <result property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="shareMoney" column="share_money"/>
+        <result property="shareSdMoney" column="share_sd_money"/>
+        <result property="createDate" column="create_date"/>
+        <result property="transId" column="trans_id"/>
+        <result property="gatherStatus" column="gather_status"/>
+    </resultMap>
+
+    <select id="gatherList" resultType="com.kw.modules.app.entity.LevelShareDetailEntity">
+select sum(share_money) as shareMoney ,sum(share_sd_money) as shareSdMoney ,user_id as userId, gather_status as gatherStatus from kw_level_share_detail where gather_status=0 group by user_id;
+	</select>
+
+    <update id="updateByStatusAndUserId"  >
+	  update kw_level_share_detail set gather_status=1 where user_id=#{userId} and   gather_status=#{status};
+	</update>
+    <select id="queryList" resultType="com.kw.modules.app.entity.LevelShareDetailEntity">
+        SELECT a.create_date createDate,a.gather_status gatherStatus,a.id,a.share_money shareMoney,
+        a.share_sd_money shareSdMoney,a.trans_id transId,a.user_id userId,
+        u.mobile from kw_level_share_detail a LEFT JOIN kw_user u ON a.user_id=u.id
+
+    </select>
+</mapper>

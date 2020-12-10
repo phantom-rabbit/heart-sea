@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kw.dao.PurposeBuyDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.kw.entity.PurposeBuyEntity" id="purposeBuyMap">
+        <result property="id" column="id"/>
+        <result property="buyerId" column="buyer_id"/>
+        <result property="total" column="total"/>
+        <result property="buyStart" column="buy_start"/>
+        <result property="hasBuy" column="has_buy"/>
+        <result property="payType" column="pay_type"/>
+        <result property="preBuy" column="pre_buy"/>
+        <result property="status" column="status"/>
+        <result property="createTime" column="create_time"/>
+        <result property="price" column="price"/>
+        <result property="unitPrice" column="unit_price"/>
+
+    </resultMap>
+    <update id="preSell" >
+        update kw_purpose_buy set has_buy = has_buy+#{amount} where id=#{purposeId} and (total-has_buy)>=#{amount}
+    </update>
+    <select id="countByUserId" resultType="java.lang.Integer">
+        <![CDATA[ select count(1) as counts from kw_buy_trans
+        where create_time>#{lastMonth} and create_time < #{now}   and buyer_id=#{buyerId}  ]]>
+    </select>
+    <select id="sumPrebuy" resultType="java.math.BigDecimal">
+        select count(total) from kw_purpose_buy
+        where 1=1
+        AND status = 0
+        AND total>has_buy
+    </select>
+
+
+    <select id="selectMinMax" resultType="java.util.Map">
+        <![CDATA[
+              select min(unit_price) as minPrice,max(unit_price) as maxPrice from kw_purpose_buy
+              where pay_type in(1,3)
+              ]]>
+        <!--where create_time>#{yesterday} and create_time < #{now}-->
+    </select>
+
+
+    <select id="selectMinMaxUSDT" resultType="java.util.Map">
+        <![CDATA[
+              select min(unit_price) as minPrice,max(unit_price) as maxPrice from kw_purpose_buy
+              where pay_type in(2)
+              ]]>
+        <!--where create_time>#{yesterday} and create_time < #{now}-->
+    </select>
+
+    <select id="countBuy" resultType="java.lang.Integer">
+        select count(1) from kw_purpose_buy
+        <if test="status != null and status != ''">
+            AND status = #{status}
+        </if>
+        <if test="buyerId != null and buyerId != ''">
+            AND buyer_id = #{buyerId}
+        </if>
+
+    </select>
+    <update id="reduceHasBuy" >
+      update kw_purpose_buy set has_buy = has_buy-#{amount} where id=#{id}  and has_buy>=#{amount}
+    </update>
+</mapper>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kw.dao.UserDao">
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.kw.entity.UserEntity" id="userMap">
+        <result property="id" column="id"/>
+        <result property="userName" column="user_name"/>
+        <result property="password" column="password"/>
+        <result property="payPassword" column="pay_password"/>
+        <result property="lastLoginTime" column="last_login_time"/>
+        <result property="lastLoginIp" column="last_login_ip"/>
+        <result property="mobile" column="mobile"/>
+        <result property="createDate" column="create_date"/>
+        <result property="createIp" column="create_ip"/>
+        <result property="status" column="status"/>
+        <result property="secretKey" column="secret_key"/>
+        <result property="bindAuthCode" column="bind_auth_code"/>
+        <result property="province" column="province"/>
+        <result property="city" column="city"/>
+    </resultMap>
+
+
+
+
+</mapper>

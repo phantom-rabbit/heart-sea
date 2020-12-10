@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kw.dao.UserLtcDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.kw.entity.UserLtcEntity" id="userLtcMap">
+        <result property="name" column="name"/>
+        <result property="id" column="id"/>
+        <result property="parentPrice" column="parent_price"/>
+        <result property="incomeParentPerday" column="income_parent_perday"/>
+        <result property="days" column="days"/>
+        <result property="maxHold" column="max_hold"/>
+        <result property="incomeSonPerday" column="income_son_perday"/>
+        <result property="power" column="power"/>
+        <result property="ltcStatus" column="ltc_status"/>
+        <result property="settleStatus" column="settle_status"/>
+        <result property="ltcId" column="ltc_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="startTime" column="start_time"/>
+        <result property="userId" column="user_id"/>
+        <result property="runDays" column="run_days"/>
+        <result property="isActiveCode" column="is_active_code"/>
+        <result property="isAward" column="is_award"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+
+    <select id="queryHyd" resultType="java.math.BigDecimal">
+        select ifnull(sum(parent_price),0)*0.1 from kw_user_ltc where ltc_status = 1 and user_id in (
+            select user_id from kw_user_team where mark like CONCAT('%,',#{userId},',%')
+
+        )
+
+        <if test="dl!=null and  dl == 0">
+            and is_award = 0
+        </if>
+
+    </select>
+
+
+    <select id="queryHydPerson" resultType="java.math.BigDecimal">
+        select ifnull(sum(parent_price),0)*0.1 from kw_user_ltc where ltc_status = 1 and user_id =#{userId}
+        <if test="dl!=null and  dl == 0">
+            and is_award = 0
+        </if>
+    </select>
+
+
+    <select id="queryWorkingLtc" resultType="java.lang.Integer">
+        select count(1) from kw_user_ltc where ltc_status = 1 and user_id =#{userId}
+    </select>
+
+
+
+    <select id="getNotActiveCodeTotalAmount" resultType="java.math.BigDecimal">
+        select ifnull(sum(parent_price),0) from kw_user_ltc where user_id = #{userId} and is_active_code = 0
+    </select>
+
+
+    <update id="updateActiveCodeStatusByUserId">
+        update kw_user_ltc set is_active_code = 1 where user_id = #{userId}
+    </update>
+</mapper>

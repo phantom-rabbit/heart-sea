@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kw.modules.app.dao.LtcConfigDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.kw.modules.app.entity.LtcConfigEntity" id="ltcConfigMap">
+        <result property="name" column="name"/>
+        <result property="id" column="id"/>
+        <result property="parentPrice" column="parent_price"/>
+        <result property="incomeParentPerday" column="income_parent_perday"/>
+        <result property="days" column="days"/>
+        <result property="maxHold" column="max_hold"/>
+        <result property="incomeSonPerday" column="income_son_perday"/>
+        <result property="power" column="power"/>
+        <result property="createTime" column="create_time"/>
+        <result property="createUserId" column="create_user_id"/>
+        <result property="configStatus" column="config_status"/>
+
+    </resultMap>
+
+
+
+
+</mapper>

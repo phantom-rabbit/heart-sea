@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kw.dao.LevelConfiigDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.kw.entity.LevelConfiigEntity" id="levelConfiigMap">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="inviteCount" column="invite_count"/>
+        <result property="teamPower" column="team_power"/>
+        <result property="lowerCount" column="lower_count"/>
+        <result property="isReal" column="is_real"/>
+        <result property="transShare" column="trans_share"/>
+        <result property="createTime" column="create_time"/>
+        <result property="createUserId" column="create_user_id"/>
+        <result property="orderNum" column="order_num"/>
+    </resultMap>
+
+
+    <select id="getLevelConfigAtAuthFinished" resultType="com.kw.entity.LevelConfiigEntity">
+        select * from kw_level_confiig where lower_count = 0 and team_power = 0 and is_real = 1 and invite_count = 0 limit 1
+    </select>
+
+</mapper>

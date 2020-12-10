@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kw.modules.app.dao.ActivationCodeDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.kw.modules.app.entity.ActivationCodeEntity" id="activationCodeMap">
+        <result property="id" column="id"/>
+        <result property="activationCode" column="activation_code"/>
+        <result property="status" column="status"/>
+        <result property="endUser" column="end_user"/>
+        <result property="createTime" column="create_time"/>
+        <result property="useTime" column="use_time"/>
+        <result property="codeType" column="code_type"/>
+        <result property="userId" column="user_id"/>
+
+    </resultMap>
+
+    <select id="queryList" resultType="com.kw.modules.app.entity.ActivationCodeEntity">
+        SELECT a.*,u1.mobile endUserMobile,u2.mobile mobile
+        from kw_activation_code a
+        LEFT JOIN kw_user u1 ON a.end_user=u1.id
+        LEFT JOIN kw_user u2 ON a.user_id=u2.id
+        <where>
+            <if test="params.key != null and params.key.trim() != ''">
+                and (u1.mobile = #{params.key} or u2.mobile = #{params.key} or a.activation_code = #{params.key})
+
+            </if>
+        </where>
+    </select>
+
+
+    <select id="queryByCode" resultType="com.kw.modules.app.entity.ActivationCodeEntity">
+        select * from kw_activation_code where activation_code = #{code}
+    </select>
+
+    <select id="findByInvitedUserId" resultType="com.kw.modules.app.entity.ActivationCodeEntity">
+        select * from kw_activation_code where end_user = #{userId} limit 1
+    </select>
+
+    <select id="queryAll" resultType="com.kw.modules.app.entity.ActivationCodeEntity">
+        select * from kw_activation_code where user_id = #{userId} order by `status` asc
+    </select>
+
+
+</mapper>

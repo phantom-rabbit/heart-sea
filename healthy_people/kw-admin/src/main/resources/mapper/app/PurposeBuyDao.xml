@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kw.modules.app.dao.PurposeBuyDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.kw.modules.app.entity.PurposeBuyEntity" id="purposeBuyMap">
+        <result property="id" column="id"/>
+        <result property="buyerId" column="buyer_id"/>
+        <result property="total" column="total"/>
+        <result property="buyStart" column="buy_start"/>
+        <result property="hasBuy" column="has_buy"/>
+        <result property="payType" column="pay_type"/>
+        <result property="preBuy" column="pre_buy"/>
+        <result property="status" column="status"/>
+        <result property="price" column="price"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <update id="reduceHasBuy" >
+      update kw_purpose_buy set has_buy = has_buy-#{amount} where id=#{id}  and has_buy>=#{amount}
+    </update>
+
+    <select id="queryList" resultType="com.kw.modules.app.entity.PurposeBuyEntity" >
+        SELECT p.id,p.has_buy as hasBuy ,p.buyer_id buyerId,p.total,p.buy_start buyStart,p.pay_type payType,p.`status`,p.create_time createTime,p.price,p.unit_price unitPrice
+        ,u.mobile from kw_purpose_buy p LEFT JOIN kw_user u ON p.buyer_id=u.id
+        <where>
+        <if test="params.buyerId != null and params.buyerId.trim() != ''">
+            <![CDATA[
+              and p.buyer_id = #{params.buyerId}
+            ]]>
+        </if>
+        </where>
+    </select>
+</mapper>

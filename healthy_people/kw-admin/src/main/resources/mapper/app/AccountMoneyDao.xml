@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kw.modules.app.dao.AccountMoneyDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.kw.modules.app.entity.AccountMoneyEntity" id="accountMoneyMap">
+        <result property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="power" column="power"/>
+        <result property="parentMoney" column="parent_money"/>
+        <result property="sonMoney" column="son_money"/>
+        <result property="powerSource" column="power_source"/>
+        <result property="frezenParentMoney" column="frezen_parent_money"/>
+    </resultMap>
+
+    <select id="queryList" resultType="com.kw.modules.app.entity.AccountMoneyEntity">
+        SELECT ifnull(x.hyd,0) as power,
+        (select  ifnull(sum(parent_price),0)*0.1 powerp from  kw_user_ltc  l where l.user_id=a.user_id and  l.ltc_status=1
+
+        <if test="params.dl!=null and  params.dl == 0">
+            and l.is_award = 0
+        </if>
+        ) as powerp
+
+        ,a.*,b.mobile from kw_account_money a
+        left join kw_user b on a.user_id = b.id
+
+
+        left join (
+        select ifnull(sum(parent_price),0)*0.1 hyd , b.user_id from kw_user_team a
+        left join kw_user_team b on  a.mark like CONCAT('%,',b.user_id,',%')
+        left join kw_user_ltc c on a.user_id = c.user_id
+        where  c.ltc_status = 1
+        <if test="params.dl!=null and  params.dl==0">
+            and c.is_award = 0
+        </if>
+
+
+        group by b.user_id) x on a.user_id = x.user_id
+        <where>
+            <if test="params.mobile!=null and params.mobile.trim() != ''">
+                and b.mobile = #{params.mobile}
+            </if>
+            <if test="params.superUserId != null and params.superUserId != ''">
+                <![CDATA[     and a.user_id in (select user_id from kw_user_team where mark like  CONCAT('%,',#{params.superUserId},',%') )
+                              and a.user_id<>#{params.superUserId}
+             ]]>
+            </if>
+        </where>
+
+    </select>
+
+
+    <update id="addParentMoney" >
+        update kw_account_money set parent_money=parent_money+#{amount}  where user_id=#{userId}
+    </update>
+
+    <update id="addSonMoney" >
+        update kw_account_money set son_money=son_money+#{amount}  where user_id=#{userId}
+    </update>
+    <update id="addPowerSource" >
+        update kw_account_money a left join kw_account b on a.user_id=b.user_id  set a.power_source = a.power_source + #{source}
+        where b.real_status = 2 and  a.user_id in
+        <foreach collection="userIds" item="userId" index="index" open="(" close=")" separator=",">
+            #{userId}
+        </foreach>
+    </update>
+</mapper>

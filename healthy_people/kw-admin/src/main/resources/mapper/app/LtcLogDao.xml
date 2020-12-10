@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kw.modules.app.dao.LtcLogDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.kw.modules.app.entity.LtcLogEntity" id="ltcLogMap">
+        <result property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="ltcId" column="ltc_id"/>
+        <result property="income" column="income"/>
+        <result property="incomeCoin" column="income_coin"/>
+        <result property="status" column="status"/>
+        <result property="createDate" column="create_date"/>
+        <result property="incomeTime" column="income_time"/>
+    </resultMap>
+
+
+    <select id="queryReportList" resultType="java.util.HashMap">
+        SELECT user_id as userId,sum(income) as income   FROM kw_ltc_log
+        <where>
+            <if test="params.startDate != null and params.startDate != ''">
+                <![CDATA[    and `create_date` >=  #{params.startDate}    ]]>
+            </if>
+            <if test="params.endDate != null and params.endDate != ''">
+                <![CDATA[    and `create_date` <=  #{params.endDate}     ]]>
+            </if>
+            and status=1
+        </where>
+        <if test="params.asUser != null and params.asUser == 1">
+            group by user_id
+        </if>
+        order by income desc
+    </select>
+
+    <select id="queryList" resultType="com.kw.modules.app.entity.LtcLogEntity">
+        SELECT a.*, b.mobile FROM kw_ltc_log a left join kw_user b on a.user_id=b.id
+        <where>
+            <if test="params.userId != null and params.userId.trim() != ''">
+                <![CDATA[
+            and a.user_id = #{params.userId}
+            ]]>
+            </if>
+
+        </where>
+
+    </select>
+
+</mapper>

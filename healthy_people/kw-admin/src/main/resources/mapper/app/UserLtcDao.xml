@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kw.modules.app.dao.UserLtcDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.kw.modules.app.entity.UserLtcEntity" id="userLtcMap">
+        <result property="name" column="name"/>
+        <result property="id" column="id"/>
+        <result property="parentPrice" column="parent_price"/>
+        <result property="incomeParentPerday" column="income_parent_perday"/>
+        <result property="days" column="days"/>
+        <result property="maxHold" column="max_hold"/>
+        <result property="incomeSonPerday" column="income_son_perday"/>
+        <result property="power" column="power"/>
+        <result property="ltcStatus" column="ltc_status"/>
+        <result property="settleStatus" column="settle_status"/>
+        <result property="ltcId" column="ltc_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="startTime" column="start_time"/>
+        <result property="userId" column="user_id"/>
+        <result property="runDays" column="run_days"/>
+        <result property="isActiveCode" column="is_active_code"/>
+        <result property="remark" column="remark"/>
+        <result property="isAward" column="is_award"/>
+
+    </resultMap>
+
+    <select id="queryList" resultType="com.kw.modules.app.entity.UserLtcEntity">
+        select * from kw_user_ltc
+        <where>
+            <if test="params.name != null and params.name.trim() != ''">
+                and `name` =  #{params.name}
+            </if>
+
+            <if test="params.ltcStatus != null">
+                and ltc_status =  #{params.ltcStatus}
+            </if>
+
+            <if test="params.settleStatus != null">
+                and settle_status =  #{params.settleStatus}
+            </if>
+        </where>
+        order by id desc
+    </select>
+
+    <select id="queryHyd" resultType="java.math.BigDecimal">
+        select ifnull(sum(parent_price),0)*0.1 from kw_user_ltc where ltc_status = 1 and user_id in (
+            select user_id from kw_user_team where mark like CONCAT('%,',#{userId},',%')
+        )
+        <if test="dl!=null and  dl == 0">
+            and is_award = 0
+        </if>
+    </select>
+
+    <select id="queryReportList" resultType="java.util.HashMap">
+      select count(*) as reportCount,name,user_id as userId,ltc_id as ltcId from kw_user_ltc
+
+
+
+        <where>
+            ltc_status=1
+            <if test="params.startDate != null and params.startDate != ''">
+                <![CDATA[    and `create_time` >=  #{params.startDate}    ]]>
+            </if>
+            <if test="params.endDate != null and params.endDate != ''">
+                <![CDATA[    and `create_time` <=  #{params.endDate}     ]]>
+            </if>
+            <if test="params.isAward != null and params.isAward != ''">
+                <![CDATA[    and `is_award` <=  #{params.isAward}     ]]>
+            </if>
+
+        </where>
+        group by ltc_id
+        <if test="params.asUser != null and params.asUser == 1">
+          ,user_id
+        </if>
+
+        order by ltc_id desc
+    </select>
+    
+    
+    <select id="queryMaxHydFromSon" resultType="java.math.BigDecimal">
+        select ifnull( max(hyd), 0)  from (
+          SELECT t.user_id, ifnull(x.hyd,0) hyd from kw_account t
+          left join (
+                  select ifnull(sum(parent_price),0)*0.1 hyd , b.user_id from kw_user_team a
+                  left join kw_user_team b on  a.mark like CONCAT('%,',b.user_id,',%')
+                  left join kw_user_ltc c on a.user_id = c.user_id
+                  where  c.ltc_status = 1
+                  <if test="dl!=null and  dl == 0">
+                      and c.is_award = 0
+                  </if>
+                  group by b.user_id
+          ) x on t.user_id = x.user_id
+          where t.user_id in (SELECT a.end_user FROM kw_activation_code a where a.user_id=#{userId})
+            and t.real_status=2) m  where hyd >= #{configHyd}
+
+    </select>
+</mapper>

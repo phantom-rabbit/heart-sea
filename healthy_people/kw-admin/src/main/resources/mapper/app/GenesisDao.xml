@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kw.modules.app.dao.GenesisDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.kw.modules.app.entity.GenesisEntity" id="genesisMap">
+        <result property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="createDate" column="create_date"/>
+        <result property="name" column="name"/>
+    </resultMap>
+
+
+    <select id="queryList" resultType="com.kw.modules.app.entity.GenesisEntity">
+        select a.*,b.mobile from kw_genesis a left join kw_user b on a.user_id = b.id
+        <where>
+            <if test="params.mobile != null and params.mobile.trim() != ''">
+                and b.mobile = #{params.mobile}
+            </if>
+        </where>
+    </select>
+</mapper>

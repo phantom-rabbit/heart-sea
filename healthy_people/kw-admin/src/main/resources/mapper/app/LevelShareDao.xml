@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kw.modules.app.dao.LevelShareDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.kw.modules.app.entity.LevelShareEntity" id="levelShareMap">
+        <result property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="shareMoney" column="share_money"/>
+        <result property="shareSdMoney" column="share_sd_money"/>
+        <result property="createDate" column="create_date"/>
+        <result property="shareStatus" column="share_status"/>
+        <result property="shareSonMoney" column="share_son_money"/>
+
+
+    </resultMap>
+
+    <select id="queryList" resultType="com.kw.modules.app.entity.LevelShareEntity">
+        SELECT a.*,u.mobile mobile from kw_level_share a LEFT JOIN kw_user u ON a.user_id=u.id
+        order by share_status,create_date asc
+    </select>
+</mapper>

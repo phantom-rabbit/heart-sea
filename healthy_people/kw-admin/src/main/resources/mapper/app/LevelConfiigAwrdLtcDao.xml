@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kw.modules.app.dao.LevelConfiigAwrdLtcDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.kw.modules.app.entity.LevelConfiigAwrdLtcEntity" id="levelConfiigAwrdLtcMap">
+        <result property="configId" column="config_id"/>
+        <result property="awardLtcId" column="award_ltc_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="id" column="id"/>
+    </resultMap>
+
+    <select id="selectPage" resultType="com.kw.modules.app.entity.LevelConfiigAwrdLtcEntity">
+        select l.id as id ,l.award_ltc_id as awardLtcId, l.create_time as createTime,l.config_id as configId,lc.name as configName, ltcc.name as ltcName from kw_level_confiig_awrd_ltc l
+        left join kw_level_confiig lc on l.config_id=lc.id
+        left join kw_ltc_config ltcc on ltcc.id=award_ltc_id
+
+	</select>
+</mapper>

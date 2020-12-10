@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kw.dao.AccountLogDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.kw.entity.AccountLogEntity" id="accountLogMap">
+        <result property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="logType" column="log_type"/>
+        <result property="mark" column="mark"/>
+        <result property="money" column="money"/>
+        <result property="account" column="account"/>
+        <result property="moneyKind" column="money_kind"/>
+
+
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+
+    <select id="queryListByUserId" parameterType="Long" resultType="com.kw.entity.AccountLogEntity">
+        select * from kw_account_log where user_id=2  and log_type='LTC_INCOME'
+    </select>
+    <select id="queryListByPage" parameterType="java.util.Map" resultType="com.kw.entity.AccountLogEntity">
+        SELECT * FROM kw_account_log where money_kind=3 LIMIT ${params.page},${params.limit}
+    </select>
+</mapper>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kw.modules.app.dao.UserDaybillsDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.kw.modules.app.entity.UserDaybillsEntity" id="userDaybillsMap">
+        <result property="dateTime" column="date_time"/>
+        <result property="power" column="power"/>
+        <result property="powerSource" column="power_source"/>
+        <result property="userId" column="user_id"/>
+        <result property="dateKey" column="date_key"/>
+    </resultMap>
+
+    <select id="selectPage" resultType="com.kw.modules.app.entity.UserDaybillsEntity">
+        select d.*,u.mobile as mobile from kw_user_daybills d left join kw_user u on d.user_id=u.id
+        order by date_time desc
+	</select>
+
+
+
+
+
+
+
+</mapper>

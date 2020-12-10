@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kw.modules.app.dao.AccountLogDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.kw.modules.app.entity.AccountLogEntity" id="accountLogMap">
+        <result property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="logType" column="log_type"/>
+        <result property="mark" column="mark"/>
+        <result property="money" column="money"/>
+        <result property="account" column="account"/>
+        <result property="moneyKind" column="money_kind"/>
+        <result property="createTime" column="create_time"/>
+
+
+    </resultMap>
+    <!--params-->
+    <select id="queryList" resultType="com.kw.modules.app.entity.AccountLogEntity" >
+        SELECT a.account,a.create_time createTime,a.id,a.log_type logType,a.mark,a.money,a.money_kind moneyKind,a.user_id userId,
+        u.mobile from kw_account_log a LEFT JOIN kw_user u ON a.user_id=u.id
+        <where>
+            <if test="params.userId != null and params.userId.trim() != ''">
+                and a.user_id = #{params.userId}
+            </if>
+            <if test="params.moneyKind != null and params.moneyKind.trim() != ''">
+                and a.money_kind = #{params.moneyKind}
+            </if>
+        </where>
+        order BY id desc
+
+    </select>
+</mapper>

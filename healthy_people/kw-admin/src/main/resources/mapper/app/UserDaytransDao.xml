@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kw.modules.app.dao.UserDaytransDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.kw.modules.app.entity.UserDaytransEntity" id="userDaytransMap">
+        <result property="dateTime" column="date_time"/>
+        <result property="buyAmount" column="buy_amount"/>
+        <result property="sellAmount" column="sell_amount"/>
+        <result property="userId" column="user_id"/>
+        <result property="dateKey" column="date_key"/>
+        <result property="fee" column="fee"/>
+    </resultMap>
+    <select id="queryReportList" resultType="java.util.HashMap">
+        select sum(buy_amount) as buyAmount, sum(sell_amount) as sellAmount, sum(fee) as fee,user_id as userId  from kw_user_daytrans
+        <where>
+            <if test="params.startDate != null and params.startDate != ''">
+                <![CDATA[    and `date_time` >=  #{params.startDate}    ]]>
+            </if>
+            <if test="params.endDate != null and params.endDate != ''">
+                <![CDATA[    and `date_time` <=  #{params.endDate}     ]]>
+            </if>
+
+        </where>
+        <if test="params.asUser != null and params.asUser == 1">
+            group by user_id
+        </if>
+        order by date_time desc
+    </select>
+
+    <select id="queryPage" resultType="com.kw.modules.app.entity.UserDaytransEntity">
+        select d.*,u.mobile as mobile from kw_user_daytrans d
+        left join kw_user u on d.user_id=u.id
+        <where>
+        <if test="params.superUserId != null and params.superUserId != ''">
+            <![CDATA[     and d.user_id in (select user_id from kw_user_team where mark like  CONCAT('%,',#{params.superUserId},',%') )
+            and d.user_id<>#{params.superUserId}
+             ]]>
+        </if>
+        </where>
+        order by date_time desc
+	</select>
+
+</mapper>

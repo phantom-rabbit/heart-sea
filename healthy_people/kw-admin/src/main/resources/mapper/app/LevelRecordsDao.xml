@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kw.modules.app.dao.LevelRecordsDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.kw.modules.app.entity.LevelRecordsEntity" id="levelRecordsMap">
+        <result property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="levelId" column="level_id"/>
+        <result property="inviterCount" column="inviter_count"/>
+        <result property="power" column="power"/>
+        <result property="powerSource" column="power_source"/>
+        <result property="eqLevelCount" column="eq_level_count"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="dqPower" column="dq_power"/>
+        <result property="dqPowerSource" column="dq_power_source"/>
+        <result property="status" column="status"/>
+    </resultMap>
+
+
+    <select id="queryList" resultType="com.kw.modules.app.entity.LevelRecordsEntity">
+        SELECT a.*, b.mobile, c.name levelName
+        FROM kw_level_records a
+          left join kw_user b on a.user_id=b.id
+        left join kw_level_confiig c on a.level_id = c.id
+        <where>
+            <if test="params.key != null and params.key.trim() != ''">
+                and b.mobile like concat('%',#{params.key},'%')
+            </if>
+        </where>
+    </select>
+    <select id="queryById" resultType="com.kw.modules.app.entity.LevelRecordsEntity">
+        SELECT a.*, b.mobile, c.name levelName
+        FROM kw_level_records a
+          left join kw_user b on a.user_id=b.id
+         left join kw_level_confiig c on a.level_id = c.id
+         where a.id = #{id}
+    </select>
+
+
+</mapper>

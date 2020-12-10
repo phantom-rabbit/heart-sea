@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kw.modules.app.dao.BuyTransDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.kw.modules.app.entity.BuyTransEntity" id="buyTransMap">
+        <result property="id" column="id"/>
+        <result property="buyerId" column="buyer_id"/>
+        <result property="amount" column="amount"/>
+        <result property="sellerId" column="seller_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="payType" column="pay_type"/>
+        <result property="status" column="status"/>
+        <result property="fee" column="fee"/>
+        <result property="settle_status" column="settleStatus"/>
+        <result property="photo" column="photo"/>
+        <result property="price" column="price"/>
+
+
+        <result property="fee" column="fee"/>
+        <result property="settleStatus" column="settle_status"/>
+        <result property="buyerSubmitTime" column="buyer_submit_time"/>
+        <result property="sellerSubmitTime" column="seller_submit_time"/>
+
+    </resultMap>
+    <select id="queryList" resultType="com.kw.modules.app.entity.BuyTransEntity">
+        SELECT a.create_time createTime, a.amount,a.buyer_id buyerId,a.seller_id sellerId,a.buyer_submit_time buyerSubmitTime,
+        a.create_time createDate,a.fee,a.id,a.pay_type payType,a.photo,a.price,a.purpose_id purposeId,a.seller_id sellerIid,
+        a.seller_submit_time sellerSubmitTime,a.settle_status settleStatus,a.`status`,
+        u1.mobile buyerMobile,u2.mobile sellerMobile
+        from kw_buy_trans a
+        LEFT JOIN kw_user u1 ON a.buyer_id=u1.id
+        LEFT JOIN kw_user u2 ON a.seller_id=u2.id
+        <where>
+        <if test="params.startDate != null and params.startDate.trim() != ''">
+            <![CDATA[
+            and a.seller_submit_time >= #{params.startDate}
+            ]]>
+        </if>
+        <if test="params.endDate != null and params.endDate.trim() != ''">
+            <![CDATA[
+              and a.seller_submit_time <= #{params.endDate}
+            ]]>
+        </if>
+            <if test="params.sellerId != null and params.sellerId.trim() != ''">
+            <![CDATA[
+              and a.seller_id = #{params.sellerId}
+            ]]>
+            </if>
+            <if test="params.buyerId != null and params.buyerId.trim() != ''">
+            <![CDATA[
+              and a.buyer_id = #{params.buyerId}
+            ]]>
+            </if>
+
+        </where>
+    </select>
+</mapper>

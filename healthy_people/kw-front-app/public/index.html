@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
+    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+    <title><%= htmlWebpackPlugin.options.title %></title>
+    <script type="text/javascript">
+        function plusReady(){
+            // 隐藏滚动条
+            plus.webview.currentWebview().setStyle({scrollIndicator:'none'});
+            // Android处理返回键
+            plus.key.addEventListener('backbutton',function(){
+                if(location.hash!="#/index"){
+                    localStorage.setItem('backFlag',"isHip")
+                    window.history.go(-1)
+                }else{
+                    plus.runtime.quit()
+                }
+            },false);
+        }
+        if(window.plus){
+            plusReady();
+        }else{
+            document.addEventListener('plusready',plusReady,false);
+        }
+    </script>
+
+    <style>
+      body{
+        margin: 0;
+        padding: 0;
+        border: 0;
+        -webkit-user-select: none; /*兼容android*/
+      }
+
+      /*清除点击时的高亮颜色*/
+      a,
+      input,
+      button {
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+      }
+      /*清除ios下的默认圆角*/
+      input,
+      button {
+        -webkit-appearance: none;
+        border-radius: 0;
+      }
+      body * {
+        -webkit-user-select: none;/*选中文字设置*/
+        font-family: helvetica; /*默认字体设置*/
+      }
+      body {
+        -webkit-text-size-adjust: 100%;/*禁止文字缩放*/
+      }
+
+    </style>
+  </head>
+
+  <body>
+  <!--<script src="https://opc-ocean.oss-cn-hangzhou.aliyuncs.com/mui.min.js"></script>-->
+    <div id="app"></div>
+    <!-- built files will be auto injected -->
+  </body>
+</html>

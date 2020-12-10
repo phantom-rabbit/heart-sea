@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kw.modules.app.dao.AccountDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.kw.modules.app.entity.AccountEntity" id="accountMap">
+        <result property="id" column="id"/>
+        <result property="mobile" column="mobile"/>
+        <result property="realName" column="real_name"/>
+        <result property="idCard" column="id_card"/>
+        <result property="realStatus" column="real_status"/>
+        <!--<result property="power" column="power"/>-->
+        <!--<result property="parentMoney" column="parent_money"/>-->
+        <!--<result property="sonMoney" column="son_money"/>-->
+        <result property="usdtToken" column="usdt_token"/>
+        <result property="alipayNumber" column="alipay_number"/>
+        <result property="bank" column="bank"/>
+        <result property="branch" column="branch"/>
+        <result property="bankCardno" column="bank_cardno"/>
+        <result property="vipId" column="vip_id"/>
+        <result property="proxyId" column="proxy_id"/>
+        <!--<result property="frezenParentMoney" column="frezen_parent_money"/>-->
+        <result property="nickname" column="nickname"/>
+        <result property="teamId" column="team_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="levelId" column="level_id"/>
+        <result property="sdStatus" column="sd_status"/>
+        <result property="sdProvinceCity" column="sd_province_city"/>
+        <result property="sdPhoto" column="sd_photo"/>
+        <!--<result property="powerSource" column="power_source"/>-->
+        <result property="createwordStatus" column="createword_status"/>
+
+    </resultMap>
+
+
+    <update id="reduceAmount" >
+        update kw_account_money set parent_money = parent_money-#{parentPrice} where user_id=#{userId} and parent_money>=#{parentPrice}
+    </update>
+
+    <update id="frenZen" >
+        update kw_account_money set frezen_parent_money = frezen_parent_money+#{amount} ,parent_money=parent_money-#{amount} where user_id=#{userId} and parent_money>=#{amount}
+    </update>
+
+    <update id="deductFrezen" >
+        update kw_account_money set frezen_parent_money = frezen_parent_money-#{amount}  where user_id=#{userId} and frezen_parent_money>=#{amount}
+    </update>
+    <update id="addParentMoney" >
+        update kw_account_money set parent_money=parent_money+#{amount}  where user_id=#{userId}
+    </update>
+
+    <update id="addSonMoney" >
+        update kw_account_money set son_money=son_money+#{amount}  where user_id=#{userId}
+    </update>
+
+
+
+    <select id="selectPageVo" resultType="com.kw.modules.app.entity.AccountEntity">
+        select lc.name as levelName,vc.name as vipName, a.*,u.mobile as mobile from kw_account a
+        left join kw_user u on a.user_id=u.id
+        left join kw_vip_config vc on vc.id=a.vip_id
+        left join kw_level_confiig lc on lc.id=a.level_id
+        where 1=1
+        <if test="params.sd_status != null and params.sd_status != ''">
+            AND sd_status = #{params.sd_status}
+        </if>
+        <if test="params.key != null and params.key.trim()">
+            AND (
+                u.mobile like concat('%',#{params.key},'%')
+                or
+                a.real_name like concat('%',#{params.key},'%')
+                or
+                a.id_card like concat('%',#{params.key},'%')
+            or
+            a.user_id like concat('%',#{params.key},'%')
+              )
+        </if>
+        order by id desc
+    </select>
+
+
+
+    <select id="queryReportList" resultType="java.util.HashMap">
+        select count(*) from kw_account a
+        left join kw_user u on a.user_id = u.id
+        <where>
+            <if test="params.startDate != null and params.startDate != ''">
+                <![CDATA[    and `create_date` >=  #{params.startDate}    ]]>
+            </if>
+            <if test="params.endDate != null and params.endDate != ''">
+                <![CDATA[    and `create_date` <=  #{params.endDate}     ]]>
+            </if>
+            <if test="params.realStatus != null and params.realStatus != ''">
+                <![CDATA[    and `real_status` <=  #{params.realStatus}     ]]>
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+
+
+    <select id="countRealNumByUserId" resultType="java.lang.Integer">
+        SELECT count(1) from kw_account t where t.user_id in
+                                                (SELECT a.end_user FROM kw_activation_code a where a.user_id=#{userId})
+                                            and t.real_status=2
+    </select>
+
+
+    <select id="queryByUserId" resultType="com.kw.modules.app.entity.AccountEntity">
+        select a.*,b.name vipName,c.name levelName,b.trans_fee as transFee
+        from kw_account a left join kw_vip_config b on a.vip_id = b.id
+                          left join kw_level_confiig c on a.level_id = c.id
+        where a.user_id = #{userId}
+    </select>
+
+    <select id="queryTeamPower" resultType="java.util.Map">
+        select ifnull(sum(power),0) as power, ifnull(sum(power_source), 0) as powerSource from kw_account_money where user_id in (
+            select user_id from kw_user_team where mark like CONCAT('%,',#{userId},',%')
+        )
+    </select>
+
+    <select id="queryMaxPowerSourceFromSonTeam" resultType="java.math.BigDecimal">
+      select ifnull( max(power_source), 0)  from (
+          SELECT t.user_id, ifnull(x.power_source,0) power_source from kw_account t
+          left join (
+                select ifnull(sum(power_source), 0)  power_source, b.user_id from kw_user_team a
+                left join kw_user_team b on  a.mark like CONCAT('%,',b.user_id,',%')
+                left join kw_account_money c on a.user_id = c.user_id
+                group by b.user_id
+            ) x on t.user_id = x.user_id
+            where t.user_id in (SELECT a.end_user FROM kw_activation_code a where a.user_id=#{userId}) and t.real_status=2
+          ) m
+    </select>
+
+    <select id="querySameLevelCountInTeam" resultType="java.lang.Integer">
+        SELECT count(1) from kw_account t
+        where t.user_id in
+              (SELECT a.end_user FROM kw_activation_code a where a.user_id=#{userId})
+          and t.real_status=2 and t.level_id >= #{levelId}
+
+    </select>
+
+    <select id="querySameLevelCountInSonTeam" resultType="java.lang.Integer">
+        select count(1) from (
+             SELECT t.user_id,x.ct from kw_account t
+             left join (
+                 select (count(1)) ct, b.user_id from kw_user_team a
+                  left join kw_user_team b on  a.mark like CONCAT('%,',b.user_id,',%')
+                  left join kw_account c on a.user_id=c.user_id
+                 where c.real_status=2 and c.level_id >= #{levelId}
+                 group by b.user_id
+             ) x on t.user_id = x.user_id
+             where t.user_id in (SELECT a.end_user FROM kw_activation_code a where a.user_id=#{userId})
+             and t.real_status=2 and ct > 0
+         ) m
+    </select>
+
+    <update id="share" >
+        update kw_account_money set parent_money=parent_money+#{amount}  where user_id=#{userId}
+    </update>
+    <update id="shareSon" >
+        update kw_account_money set son_money=son_money+#{amount}  where user_id=#{userId}
+    </update>
+
+    <update id="canCleOrder" >
+        update kw_account_money set parent_money=parent_money+#{amount},frezen_parent_money=frezen_parent_money-#{amount}   where user_id=#{userId} and frezen_parent_money>=#{amount}
+    </update>
+
+    <update id="updateVip" >
+        update kw_account set vip_id = #{vipId} where user_id=#{userId}
+    </update>
+
+    <select id="querySdFromCity" resultType="com.kw.modules.app.entity.AccountEntity">
+        select * from kw_account where sd_status=4 and sd_province_city like concat('%',#{province},'%',#{city},'%') limit 1
+    </select>
+
+    <insert id="updateEveryBuy" parameterType="java.util.Map">
+		INSERT INTO
+		kw_user_daytrans (date_key,date_time,buy_amount,sell_amount,user_id,fee) VALUES
+		(#{dateKey},#{date},#{buyAmount},0,#{userId},0) ON
+		DUPLICATE KEY UPDATE
+		buy_amount=buy_amount+#{buyAmount}
+	</insert>
+    <insert id="updateEveryDaySell" parameterType="java.util.Map">
+	INSERT INTO
+		kw_user_daytrans (date_key,date_time,buy_amount,sell_amount,user_id,fee) VALUES
+		(#{dateKey},#{date},0,#{sellAmount},#{userId},#{fee}) ON
+		DUPLICATE KEY UPDATE
+		sell_amount=sell_amount+#{sellAmount},
+		fee=fee+#{fee}
+	</insert>
+
+
+    <insert id="updateEveryDayPower" parameterType="java.util.Map">
+		INSERT INTO
+		kw_user_daybills (date_key,date_time,power,power_source,user_id) VALUES
+		(#{dateKey},#{date},#{power},0,#{userId}) ON
+		DUPLICATE KEY UPDATE
+		power=power+#{power}
+	</insert>
+    <insert id="updateEveryDayPowerSource" parameterType="java.util.Map">
+	INSERT INTO
+		kw_user_daybills (date_key,date_time,power,power_source,user_id) VALUES
+		(#{dateKey},#{date},0,#{powerSource},#{userId}) ON
+		DUPLICATE KEY UPDATE
+		power_source=power_source+#{powerSource}
+	</insert>
+
+
+    <select id="querySdFromCity" resultType="com.kw.modules.app.entity.AccountEntity">
+        select * from kw_account where sd_status=4 and sd_province_city like concat('%',#{province},'%',#{city},'%') limit 1
+    </select>
+
+
+    <select id="queryByIdcard" resultType="com.kw.modules.app.entity.AccountEntity">
+        select * from kw_account where id_card = #{idcard} and real_status = 2
+    </select>
+
+    <select id="queryByIds" resultType="com.kw.modules.app.entity.AccountEntity">
+        select a.*, b.mobile from kw_account a left join kw_user b on a.user_id=b.id where a.user_id in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
+
+</mapper>
